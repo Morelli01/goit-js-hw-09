@@ -1,7 +1,6 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 
-
 function addLeadingZero(value) {
   return value.toString().padStart(2, "0");
 }
@@ -20,11 +19,28 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-const startButton = document.querySelector('[data-start]');
-const daysElement = document.querySelector('[data-days]');
-const hoursElement = document.querySelector('[data-hours]');
-const minutesElement = document.querySelector('[data-minutes]');
-const secondsElement = document.querySelector('[data-seconds]');
+function startCountdown(selectedDate) {
+  const startButton = document.querySelector('[data-start]');
+  const daysElement = document.querySelector('[data-days]');
+  const hoursElement = document.querySelector('[data-hours]');
+  const minutesElement = document.querySelector('[data-minutes]');
+  const secondsElement = document.querySelector('[data-seconds]');
+
+  const countdownInterval = setInterval(() => {
+    const currentTime = new Date().getTime();
+    const timeDifference = selectedDate - currentTime;
+
+    if (timeDifference <= 0) {
+      clearInterval(countdownInterval);
+    } else {
+      const { days, hours, minutes, seconds } = convertMs(timeDifference);
+      daysElement.textContent = addLeadingZero(days);
+      hoursElement.textContent = addLeadingZero(hours);
+      minutesElement.textContent = addLeadingZero(minutes);
+      secondsElement.textContent = addLeadingZero(seconds);
+    }
+  }, 1000);
+}
 
 flatpickr("#datetime-picker", {
   enableTime: true,
@@ -35,33 +51,12 @@ flatpickr("#datetime-picker", {
     const selectedDate = selectedDates[0];
 
     if (selectedDate < new Date()) {
-
       alert("Please choose a date in the future");
       startButton.disabled = true;
     } else {
-
       startButton.disabled = false;
-
-
       startButton.addEventListener("click", () => {
-        const countdownInterval = setInterval(() => {
-          const currentTime = new Date().getTime();
-          const timeDifference = selectedDate - currentTime;
-
-          if (timeDifference <= 0) {
-            clearInterval(countdownInterval);
-            daysElement.textContent = "00";
-            hoursElement.textContent = "00";
-            minutesElement.textContent = "00";
-            secondsElement.textContent = "00";
-          } else {
-            const { days, hours, minutes, seconds } = convertMs(timeDifference);
-            daysElement.textContent = addLeadingZero(days);
-            hoursElement.textContent = addLeadingZero(hours);
-            minutesElement.textContent = addLeadingZero(minutes);
-            secondsElement.textContent = addLeadingZero(seconds);
-          }
-        }, 1000);
+        startCountdown(selectedDate);
       });
     }
   },
